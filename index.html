@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redliner — Change once. Publish everywhere.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink: #0d0d0e;
+  --red: #c8302a;
+  --blue: #1e4f9c;
+  --gold: #b8902a;
+  --muted: #7a7570;
+  --rule: #d4cfc4;
+  --paper: #f5f2eb;
+  --cream: #faf8f3;
+}
+
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.7;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* Typography */
+h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 900; line-height: 1.15; }
+em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400; }
+
+.mono { font-family: 'DM Mono', monospace; }
+
+/* Reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1), transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── MASTHEAD ─── */
+.masthead {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 48px;
+  background: rgba(245, 242, 235, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+.masthead-logo {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.masthead-logo .dot { color: var(--red); }
+.masthead-right {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* ─── SECTION SNAP ─── */
+.snap-section {
+  scroll-snap-align: start;
+}
+
+/* ─── SECTION DIVIDER ─── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px 40px;
+}
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+.section-divider span {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+}
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 80px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 120px 48px 80px;
+}
+.hero-kicker {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--red);
+  margin-bottom: 24px;
+}
+.hero-kicker::before { content: '— '; }
+.hero-headline {
+  font-size: clamp(2.8rem, 5vw, 4rem);
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+.hero-headline em { color: var(--blue); }
+.hero-subhead {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--ink);
+  opacity: 0.8;
+  border-left: 3px solid var(--gold);
+  padding-left: 24px;
+  margin-bottom: 40px;
+  max-width: 520px;
+}
+.hero-ctas { display: flex; gap: 16px; }
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border: 1.5px solid var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+.btn-solid { background: var(--ink); color: var(--paper); }
+.btn-solid:hover { background: var(--blue); border-color: var(--blue); }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+/* ─── DOC MOCKUP ─── */
+.doc-mockup {
+  background: #fff;
+  border: 1px solid var(--rule);
+  box-shadow: 12px 12px 0 rgba(13, 13, 14, 0.06);
+  overflow: hidden;
+  perspective: 800px;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease;
+}
+.doc-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fafaf8;
+  border-bottom: 1px solid var(--rule);
+}
+.traffic-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.traffic-dot.r { background: #ff5f57; }
+.traffic-dot.y { background: #febc2e; }
+.traffic-dot.g { background: #28c840; }
+.doc-topbar-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.doc-body { padding: 32px 28px; }
+.doc-heading {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+.doc-text {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.9;
+  color: #444;
+  margin-bottom: 20px;
+}
+.doc-text del {
+  color: var(--red);
+  text-decoration: line-through;
+  background: rgba(200, 48, 42, 0.06);
+  padding: 0 2px;
+}
+.doc-text ins {
+  color: var(--blue);
+  text-decoration: none;
+  background: rgba(30, 79, 156, 0.06);
+  padding: 0 2px;
+}
+.doc-output {
+  border-top: 1px solid var(--rule);
+  padding: 20px 28px;
+}
+.doc-output-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.doc-output-files { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.file-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  padding: 5px 12px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.file-chip.html { background: rgba(200, 48, 42, 0.08); color: var(--red); }
+.file-chip.pdf { background: rgba(30, 79, 156, 0.08); color: var(--blue); }
+.file-chip.docx { background: rgba(184, 144, 42, 0.08); color: var(--gold); }
+.file-chip-ext {
+  font-size: 0.55rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+.file-chip.html .file-chip-ext { background: rgba(200, 48, 42, 0.12); }
+.file-chip.pdf .file-chip-ext { background: rgba(30, 79, 156, 0.12); }
+.file-chip.docx .file-chip-ext { background: rgba(184, 144, 42, 0.12); }
+.cursor-blink {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: var(--blue);
+  margin-left: 4px;
+  animation: blink 1s steps(1) infinite;
+  vertical-align: middle;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ─── STATEMENT PAGES ─── */
+.statement {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 48px;
+  text-align: center;
+}
+.statement-quote {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  max-width: 860px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin-bottom: 32px;
+}
+.statement-quote em { color: var(--blue); }
+.statement-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+}
+
+/* ─── ESSAY ─── */
+.essay-section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.essay-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--red);
+  margin-bottom: 16px;
+}
+.essay-title {
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  margin-bottom: 56px;
+  max-width: 700px;
+}
+.essay-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+}
+.essay-columns p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: rgba(13, 13, 14, 0.78);
+  margin-bottom: 28px;
+}
+.essay-lead {
+  font-size: 1.15rem !important;
+  color: var(--ink) !important;
+  line-height: 1.8 !important;
+}
+.essay-lead::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 3.5em;
+  float: left;
+  line-height: 0.85;
+  margin-right: 12px;
+  margin-top: 6px;
+  color: var(--ink);
+}
+
+/* ─── ARCHITECTURE / FEATURES ─── */
+.features-section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+.feature-card {
+  padding: 40px 36px;
+  border: 1px solid var(--rule);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-card:hover {
+  background: var(--cream);
+  box-shadow: 0 4px 24px rgba(13, 13, 14, 0.04);
+}
+.feature-number {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 6rem;
+  line-height: 1;
+  color: rgba(13, 13, 14, 0.06);
+  margin-bottom: 16px;
+}
+.feature-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+}
+.feature-desc {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+.feature-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--blue);
+  padding: 5px 12px;
+  border: 1px solid rgba(30, 79, 156, 0.2);
+  display: inline-block;
+}
+
+/* ─── COMPARISON TABLE ─── */
+.comparison-section {
+  padding: 120px 48px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.comparison-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--red);
+  margin-bottom: 16px;
+}
+.comparison-title {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  margin-bottom: 56px;
+  max-width: 600px;
+}
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.comparison-table thead th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-align: left;
+  padding: 16px 24px;
+  border-bottom: 2px solid var(--rule);
+}
+.comparison-table tbody td {
+  padding: 24px 24px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  vertical-align: top;
+}
+.comparison-table tbody td:first-child {
+  width: 45%;
+}
+.conv {
+  text-decoration: line-through;
+  font-style: italic;
+  color: var(--muted);
+}
+.redl {
+  font-weight: 600;
+  color: var(--blue);
+}
+
+/* ─── SPECS ─── */
+.specs-section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.specs-sticky {
+  position: sticky;
+  top: 140px;
+}
+.specs-sticky-text {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  line-height: 1.4;
+}
+.specs-sticky-text em { color: var(--blue); }
+.specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.spec-item {
+  padding: 28px;
+  border: 1px solid var(--rule);
+  transition: background 0.3s ease;
+}
+.spec-item:hover { background: var(--cream); }
+.spec-icon {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 16px;
+  color: var(--muted);
+}
+.spec-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+.spec-desc {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ─── SECURITY ─── */
+.security-section {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 120px 48px;
+}
+.security-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.security-icon-box {
+  width: 96px;
+  height: 96px;
+  border: 1.5px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+}
+.security-icon-box svg { color: var(--gold); }
+.security-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.security-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  margin-bottom: 24px;
+  color: var(--paper);
+}
+.security-desc {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: rgba(245, 242, 235, 0.7);
+  max-width: 700px;
+  margin: 0 auto 40px;
+}
+.security-badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.security-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  border: 1px solid rgba(245, 242, 235, 0.15);
+  color: rgba(245, 242, 235, 0.6);
+}
+
+/* ─── CLOSING ─── */
+.closing {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 48px;
+  text-align: center;
+}
+
+/* ─── FOOTER ─── */
+.footer {
+  padding: 48px 48px;
+  border-top: 1px solid var(--rule);
+}
+.footer-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+.footer-logo .dot { color: var(--red); }
+.footer-note {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.footer-crosslink {
+  text-align: center;
+  padding: 24px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-crosslink span {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.footer-crosslink .current {
+  color: var(--ink);
+  opacity: 0.5;
+  border-bottom: 1px solid var(--rule);
+}
+.footer-crosslink a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.footer-crosslink a:hover {
+  color: var(--blue);
+  border-color: var(--blue);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  html { scroll-snap-type: y proximity; }
+  .masthead { padding: 16px 24px; }
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 100px 24px 60px;
+    gap: 48px;
+    min-height: auto;
+  }
+  .statement { min-height: auto; padding: 80px 24px; }
+  .essay-section { padding: 80px 24px; }
+  .essay-columns { grid-template-columns: 1fr; gap: 0; }
+  .features-section { padding: 80px 24px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .comparison-section { padding: 80px 24px; }
+  .comparison-table { font-size: 0.85rem; }
+  .specs-section {
+    grid-template-columns: 1fr;
+    padding: 80px 24px;
+    gap: 48px;
+  }
+  .specs-sticky { position: static; }
+  .specs-grid { grid-template-columns: 1fr; }
+  .security-section { padding: 80px 24px; }
+  .closing { min-height: auto; padding: 80px 24px; }
+  .section-divider { padding: 0 24px 32px; }
+  .footer { padding: 36px 24px; }
+  .footer-main { flex-direction: column; gap: 16px; text-align: center; }
+  .hero-ctas { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<nav class="masthead">
+  <a href="#" class="masthead-logo">Redliner<span class="dot">.</span></a>
+  <div class="masthead-right">Advocates Close / New York</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero snap-section">
+  <div class="hero-left reveal">
+    <div class="hero-kicker">Native macOS Application</div>
+    <h1 class="hero-headline">Change once.<br><em>Publish everywhere.</em></h1>
+    <p class="hero-subhead">Edit a document. The redline, the PDF, the Word file, and the HTML update simultaneously — not because you asked, but because that's how the system works.</p>
+    <div class="hero-ctas">
+      <a href="#essay" class="btn btn-solid">Read More</a>
+      <a href="#architecture" class="btn btn-ghost">Architecture</a>
+    </div>
+  </div>
+  <div class="hero-right reveal">
+    <div class="doc-mockup">
+      <div class="doc-topbar">
+        <span class="traffic-dot r"></span>
+        <span class="traffic-dot y"></span>
+        <span class="traffic-dot g"></span>
+        <span class="doc-topbar-title">registration_statement.atlas</span>
+      </div>
+      <div class="doc-body">
+        <div class="doc-heading">§ 4.2 — Limitation of Liability</div>
+        <div class="doc-text">
+          The Company shall not be liable for any <del>indirect, incidental, or consequential</del> <ins>direct or indirect</ins> damages arising out of or related to this Agreement, except to the extent such damages result from the Company's <del>gross negligence or willful misconduct</del> <ins>breach of its obligations under Section 3.1</ins>.
+        </div>
+      </div>
+      <div class="doc-output">
+        <div class="doc-output-label">output/</div>
+        <div class="doc-output-files">
+          <span class="file-chip html"><span class="file-chip-ext">HTML</span> redline.html</span>
+          <span class="file-chip pdf"><span class="file-chip-ext">PDF</span> registration_statement.pdf</span>
+          <span class="file-chip docx"><span class="file-chip-ext">DOCX</span> registration_statement.docx</span>
+          <span class="cursor-blink"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATEMENT 1 -->
+<section class="statement snap-section">
+  <div class="reveal">
+    <p class="statement-quote">Programmers have developed an astonishing array of tools for managing complexity. We are interested in bringing these tools to bear on <em>the practice of law.</em></p>
+    <p class="statement-sub">Advocates Close — New York</p>
+  </div>
+</section>
+
+<!-- ESSAY -->
+<section id="essay" class="snap-section">
+  <div class="essay-section">
+    <div class="section-divider reveal"><span>Thesis</span></div>
+    <div class="essay-eyebrow reveal">On Complexity</div>
+    <h2 class="essay-title reveal">Tools that do not degrade with scale.</h2>
+    <div class="essay-columns">
+      <div class="reveal">
+        <p class="essay-lead">Computer programmers as we know them today have existed for less than a century. They are not credentialed or licensed. They do not sit an exam.</p>
+        <p>And yet the things entrusted to computer programs are not somehow less important than the things entrusted to professionals who do. A Boeing 747 does not stay aloft because it is required by law to do so. It stays aloft because it is governed by computer programs that make it able to do so. How this is possible is worth understanding.</p>
+      </div>
+      <div class="reveal">
+        <p>Over a remarkably short period, programmers have developed tools, practices, and protocols for building large-scale systems that interoperate with one another. iPhones are not less useful when three billion people have one. The tools do not degrade with scale.</p>
+        <p>Laws, by contrast, become harder to use when the number of people who must apply them increases. It is not obvious that this limitation reflects some fundamental constraint. It may simply reflect a gap in tooling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATEMENT 2 -->
+<section class="statement snap-section">
+  <div class="reveal">
+    <p class="statement-quote">If you print a document to Word and then print it to PDF, you have not done <em>one thing twice.</em> You have done <em>two things</em> once each.</p>
+    <p class="statement-sub">Printing is printing. Redlining is redlining.</p>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="snap-section">
+  <div class="features-section">
+    <div class="section-divider reveal"><span>Architecture</span></div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-number">01</div>
+        <h3 class="feature-title">XPC Services</h3>
+        <p class="feature-desc">Each conversion runs in a launchd-managed separate process. The system allocates and reclaims resources. Your document editor never shares memory with the export pipeline.</p>
+        <span class="feature-tag">Multi-Process</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-number">02</div>
+        <h3 class="feature-title">Parallel Redlining</h3>
+        <p class="feature-desc">Myers diff algorithm over NSXPCConnection, coordinated by NSFileCoordinator. Ten documents redline simultaneously without contention or data races.</p>
+        <span class="feature-tag">Structured Concurrency</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-number">03</div>
+        <h3 class="feature-title">Zero-Copy IPC</h3>
+        <p class="feature-desc">No document content crosses the process boundary. Only file paths are exchanged between processes. The XPC service reads from disk, writes to disk, and exits.</p>
+        <span class="feature-tag">File Paths Only</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATEMENT 3 -->
+<section class="statement snap-section">
+  <div class="reveal">
+    <p class="statement-quote">Privacy is not a trade-off. It is a <em>design constraint.</em></p>
+    <p class="statement-sub">Separate processes. Separate memory. No content on the wire.</p>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="snap-section">
+  <div class="comparison-section">
+    <div class="section-divider reveal"><span>The Difference</span></div>
+    <div class="comparison-eyebrow reveal">Do It Once</div>
+    <h2 class="comparison-title reveal">One edit. Every output. Every format. Every time.</h2>
+    <table class="comparison-table reveal">
+      <thead>
+        <tr>
+          <th>Conventional</th>
+          <th>Redliner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="conv">Print to Word then PDF — two jobs</span></td>
+          <td><span class="redl">One edit propagates to HTML, PDF, DOCX via XPC</span></td>
+        </tr>
+        <tr>
+          <td><span class="conv">Run redline manually</span></td>
+          <td><span class="redl">Redlines exist as a matter of process</span></td>
+        </tr>
+        <tr>
+          <td><span class="conv">Choose privacy vs performance</span></td>
+          <td><span class="redl">XPC isolation, no trade-off</span></td>
+        </tr>
+        <tr>
+          <td><span class="conv">Wait for one conversion</span></td>
+          <td><span class="redl">Parallel execution, ten at once</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SPECS -->
+<section class="snap-section">
+  <div class="specs-section">
+    <div class="section-divider reveal" style="grid-column: 1 / -1;"><span>Technical Specs</span></div>
+    <div class="specs-sticky reveal">
+      <p class="specs-sticky-text">No privilege without <em>privacy.</em></p>
+    </div>
+    <div class="specs-grid">
+      <div class="spec-item reveal">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+        <h4 class="spec-title">XPC Services</h4>
+        <p class="spec-desc">NSXPCConnection, NSXPCListener, launchd lifecycle management. Each service is a separate process with its own memory space.</p>
+      </div>
+      <div class="spec-item reveal">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <h4 class="spec-title">File Coordination</h4>
+        <p class="spec-desc">NSFileCoordinator batch prepare API for concurrent file access. Prevents data races across multiple XPC export workers.</p>
+      </div>
+      <div class="spec-item reveal">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <h4 class="spec-title">Multi-Format Export</h4>
+        <p class="spec-desc">Pandoc over XPC for HTML, PDF, and DOCX generation. One source document, three outputs, zero manual steps.</p>
+      </div>
+      <div class="spec-item reveal">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <h4 class="spec-title">Structured Concurrency</h4>
+        <p class="spec-desc">Swift task groups with automatic cancellation propagation. Parallel work without callback hell or manual thread management.</p>
+      </div>
+      <div class="spec-item reveal">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <h4 class="spec-title">SwiftData</h4>
+        <p class="spec-desc">@Model persistence layer for document metadata, edit history, and transaction state. Core Data under the hood, Swift macros on top.</p>
+      </div>
+      <div class="spec-item reveal">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <h4 class="spec-title">TextKit 2</h4>
+        <p class="spec-desc">NSTextStorage for attributed text management. Edit transactions encrypted with AES-GCM before they touch disk.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="security-section snap-section">
+  <div class="security-inner reveal">
+    <div class="security-icon-box">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div class="security-label">Privacy by Architecture</div>
+    <h2 class="security-title">The architecture makes the wrong thing hard to do.</h2>
+    <p class="security-desc">XPC services run in separate processes with separate memory. No document content crosses the process boundary — only file paths. Edit transactions are encrypted with AES-GCM before they touch disk. Privacy is enforced by the structure of the system, not by a policy that someone might override.</p>
+    <div class="security-badges">
+      <span class="security-badge">XPC Process Isolation</span>
+      <span class="security-badge">Zero-Copy IPC</span>
+      <span class="security-badge">AES-GCM Encryption</span>
+      <span class="security-badge">NSFileCoordinator</span>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing snap-section">
+  <div class="reveal">
+    <p class="statement-quote">A single edit should propagate to every output as a matter of <em>architecture,</em> not effort.</p>
+    <p class="statement-sub">This is what we build.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-crosslink">
+    <span>This content exists in three renderings. <span class="current">editorial</span> · <a href="https://advocatesclose.github.io/redliner-site/">technical</a> · <a href="https://advocatesclose.github.io/redliner-terminal/">terminal</a></span>
+  </div>
+  <div class="footer-main">
+    <div class="footer-logo">Redliner<span class="dot">.</span></div>
+    <div class="footer-note">Advocates Close · New York / macOS 15+ · Swift 6 · Apple Frameworks</div>
+  </div>
+</footer>
+
+<script>
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// 3D perspective hover on doc mockup
+const mockup = document.querySelector('.doc-mockup');
+if (mockup) {
+  mockup.addEventListener('mousemove', (e) => {
+    const rect = mockup.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mockup.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
+    mockup.style.boxShadow = `${-x * 20 + 12}px ${y * 20 + 12}px 0 rgba(13, 13, 14, 0.06)`;
+  });
+  mockup.addEventListener('mouseleave', () => {
+    mockup.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg)';
+    mockup.style.boxShadow = '12px 12px 0 rgba(13, 13, 14, 0.06)';
+  });
+}
+</script>
+</body>
+</html>
