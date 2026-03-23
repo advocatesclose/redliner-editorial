@@ -675,7 +675,7 @@ em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 40
   <div class="hero-left reveal">
     <div class="hero-kicker">Native macOS Application</div>
     <h1 class="hero-headline">Change once.<br><em>Publish everywhere.</em></h1>
-    <p class="hero-subhead">Edit a document. The redline, the PDF, the Word file, and the HTML update simultaneously — not because you asked, but because that's how the system works.</p>
+    <p class="hero-subhead">Edit a document. The redline, the PDF, the Word file, and the HTML update simultaneously — not because you asked, but because that’s how the system works.</p>
     <div class="hero-ctas">
       <a href="#essay" class="btn btn-solid">Read More</a>
       <a href="#architecture" class="btn btn-ghost">Architecture</a>
@@ -692,7 +692,7 @@ em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 40
       <div class="doc-body">
         <div class="doc-heading">§ 4.2 — Limitation of Liability</div>
         <div class="doc-text">
-          The Company shall not be liable for any <del>indirect, incidental, or consequential</del> <ins>direct or indirect</ins> damages arising out of or related to this Agreement, except to the extent such damages result from the Company's <del>gross negligence or willful misconduct</del> <ins>breach of its obligations under Section 3.1</ins>.
+          In no event shall the Company be liable for <del>any indirect or consequential damages</del> <ins>damages exceeding the contract value</ins> arising from use of the Services.
         </div>
       </div>
       <div class="doc-output">
@@ -721,7 +721,7 @@ em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 40
   <div class="essay-section">
     <div class="section-divider reveal"><span>Thesis</span></div>
     <div class="essay-eyebrow reveal">On Complexity</div>
-    <h2 class="essay-title reveal">Tools that do not degrade with scale.</h2>
+    <h2 class="essay-title reveal">Tools that do not degrade<br>with scale.</h2>
     <div class="essay-columns">
       <div class="reveal">
         <p class="essay-lead">Computer programmers as we know them today have existed for less than a century. They are not credentialed or licensed. They do not sit an exam.</p>
@@ -751,19 +751,19 @@ em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 40
       <div class="feature-card reveal">
         <div class="feature-number">01</div>
         <h3 class="feature-title">XPC Services</h3>
-        <p class="feature-desc">Each conversion runs in a launchd-managed separate process. The system allocates and reclaims resources. Your document editor never shares memory with the export pipeline.</p>
+        <p class="feature-desc">Document conversion and redline generation run in dedicated XPC services — separate processes with independent memory spaces, managed by <code>launchd</code>, created and destroyed on demand. Each service does one thing. The app coordinates.</p>
         <span class="feature-tag">Multi-Process</span>
       </div>
       <div class="feature-card reveal">
         <div class="feature-number">02</div>
         <h3 class="feature-title">Parallel Redlining</h3>
-        <p class="feature-desc">Myers diff algorithm over NSXPCConnection, coordinated by NSFileCoordinator. Ten documents redline simultaneously without contention or data races.</p>
+        <p class="feature-desc">The redline engine implements a word-level Myers diff. Multiple redlines execute in parallel — each with its own <code>NSXPCConnection</code>, its own handler, its own coordinated file access via <code>NSFileCoordinator</code>.</p>
         <span class="feature-tag">Structured Concurrency</span>
       </div>
       <div class="feature-card reveal">
         <div class="feature-number">03</div>
         <h3 class="feature-title">Zero-Copy IPC</h3>
-        <p class="feature-desc">No document content crosses the process boundary. Only file paths are exchanged between processes. The XPC service reads from disk, writes to disk, and exits.</p>
+        <p class="feature-desc">No document content crosses the XPC boundary. The app passes file paths; the services read, process, and write directly to the filesystem. The main process never holds conversion artifacts in memory.</p>
         <span class="feature-tag">File Paths Only</span>
       </div>
     </div>
@@ -783,7 +783,7 @@ em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 40
   <div class="comparison-section">
     <div class="section-divider reveal"><span>The Difference</span></div>
     <div class="comparison-eyebrow reveal">Do It Once</div>
-    <h2 class="comparison-title reveal">One edit. Every output. Every format. Every time.</h2>
+    <h2 class="comparison-title reveal">One edit. Every output.<br>Every format. Every time.</h2>
     <table class="comparison-table reveal">
       <thead>
         <tr>
@@ -793,20 +793,20 @@ em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 40
       </thead>
       <tbody>
         <tr>
-          <td><span class="conv">Print to Word then PDF — two jobs</span></td>
-          <td><span class="redl">One edit propagates to HTML, PDF, DOCX via XPC</span></td>
+          <td><span class="conv">Print to Word, then print to PDF — two jobs</span></td>
+          <td><span class="redl"><strong>One edit</strong> propagates to HTML, PDF, and DOCX simultaneously via XPC</span></td>
         </tr>
         <tr>
-          <td><span class="conv">Run redline manually</span></td>
-          <td><span class="redl">Redlines exist as a matter of process</span></td>
+          <td><span class="conv">Run a redline manually after each revision</span></td>
+          <td><span class="redl"><strong>Redlines exist</strong> as a matter of process — they are produced, not requested</span></td>
         </tr>
         <tr>
-          <td><span class="conv">Choose privacy vs performance</span></td>
-          <td><span class="redl">XPC isolation, no trade-off</span></td>
+          <td><span class="conv">Choose between privacy and performance</span></td>
+          <td><span class="redl"><strong>XPC isolation</strong> — separate process memory, no content on the wire, no trade-off</span></td>
         </tr>
         <tr>
-          <td><span class="conv">Wait for one conversion</span></td>
-          <td><span class="redl">Parallel execution, ten at once</span></td>
+          <td><span class="conv">Wait for one conversion to finish before starting the next</span></td>
+          <td><span class="redl"><strong>Parallel execution</strong> — ten redlines at once, each in its own process</span></td>
         </tr>
       </tbody>
     </table>
@@ -824,32 +824,32 @@ em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 40
       <div class="spec-item reveal">
         <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
         <h4 class="spec-title">XPC Services</h4>
-        <p class="spec-desc">NSXPCConnection, NSXPCListener, launchd lifecycle management. Each service is a separate process with its own memory space.</p>
+        <p class="spec-desc">NSXPCConnection, NSXPCListener. Each service runs in its own process with its own memory space. Created by launchd, destroyed on invalidation.</p>
       </div>
       <div class="spec-item reveal">
         <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         <h4 class="spec-title">File Coordination</h4>
-        <p class="spec-desc">NSFileCoordinator batch prepare API for concurrent file access. Prevents data races across multiple XPC export workers.</p>
+        <p class="spec-desc">NSFileCoordinator with the batch prepare API. Coordinated reads and writes across processes without deadlock.</p>
       </div>
       <div class="spec-item reveal">
         <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <h4 class="spec-title">Multi-Format Export</h4>
-        <p class="spec-desc">Pandoc over XPC for HTML, PDF, and DOCX generation. One source document, three outputs, zero manual steps.</p>
+        <p class="spec-desc">Pandoc runs over XPC. Markdown in, HTML and PDF and DOCX out. One source, every format.</p>
       </div>
       <div class="spec-item reveal">
         <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         <h4 class="spec-title">Structured Concurrency</h4>
-        <p class="spec-desc">Swift task groups with automatic cancellation propagation. Parallel work without callback hell or manual thread management.</p>
+        <p class="spec-desc">Swift task groups orchestrate parallel XPC connections. Each redline job gets its own connection, its own handler, its own lifecycle.</p>
       </div>
       <div class="spec-item reveal">
         <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
         <h4 class="spec-title">SwiftData</h4>
-        <p class="spec-desc">@Model persistence layer for document metadata, edit history, and transaction state. Core Data under the hood, Swift macros on top.</p>
+        <p class="spec-desc">Structured filing data persisted with @Model. Template fields resolve at render time against live model state.</p>
       </div>
       <div class="spec-item reveal">
         <svg class="spec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <h4 class="spec-title">TextKit 2</h4>
-        <p class="spec-desc">NSTextStorage for attributed text management. Edit transactions encrypted with AES-GCM before they touch disk.</p>
+        <p class="spec-desc">NSTextView backed by NSTextStorage. Every keystroke produces a timestamped EditTransaction, encrypted with AES-GCM on save.</p>
       </div>
     </div>
   </div>
